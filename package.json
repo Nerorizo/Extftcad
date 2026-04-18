@@ -1,0 +1,11 @@
+{
+	"scripts": {
+    	"dev:api": "node server.js"
+  	},
+	"dependencies": {
+		"@openrouter/sdk": "^0.12.14",
+		"cors": "^2.8.6",
+		"dotenv": "^17.4.2",
+		"express": "^5.2.1"
+	}
+}
