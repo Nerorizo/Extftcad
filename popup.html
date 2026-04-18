@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>EXTFTCAD</title>
+	<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+	<main class="popup" aria-labelledby="popup-title">
+		<header class="popup__header">
+			<p class="popup__eyebrow">EXTFTCAD</p>
+			<h1 id="popup-title">Адаптация текста</h1>
+		</header>
+
+		<label class="field" for="level">
+			<span>Уровень упрощения</span>
+			<select id="level" name="level">
+				<option value="fifth_grader">Объясни как пятикласснику</option>
+				<option value="basic">Упрости до базового уровня</option>
+				<option value="plain_language">Сохрани суть, убери терминологию</option>
+			</select>
+		</label>
+
+		<section class="actions" aria-label="Действия с текстом">
+			<button id="adapt-selection" type="button">Упростить выделение</button>
+			<button id="adapt-page" type="button">Упростить всю страницу</button>
+			<button id="restore-original" class="button-secondary" type="button">Вернуть оригинал</button>
+		</section>
+
+		<p id="status" class="status" role="status" aria-live="polite">Готово к работе</p>
+	</main>
+
+	<script src="popup.js"></script>
+</body>
+</html>
