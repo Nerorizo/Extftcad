@@ -12,7 +12,7 @@ const STATUS = {
   restoring: 'Возвращаю оригинал...'
 };
 
-const DEFAULT_LEVEL = 'fifth_grader';
+const DEFAULT_LEVEL = 'clear';
 const STORAGE_KEYS = {
   level: 'extftcadLevel'
 };
@@ -26,7 +26,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const actionButtons = [adaptSelectionButton, adaptPageButton, restoreButton];
 
   const savedLevel = await getStoredLevel();
-  levelSelect.value = savedLevel;
+  levelSelect.value = hasOption(levelSelect, savedLevel)
+    ? savedLevel
+    : DEFAULT_LEVEL;
 
   levelSelect.addEventListener('change', () => {
     chrome.storage.local.set({ [STORAGE_KEYS.level]: levelSelect.value });
@@ -105,6 +107,10 @@ async function runTabAction({
 async function getStoredLevel() {
   const result = await chrome.storage.local.get(STORAGE_KEYS.level);
   return result[STORAGE_KEYS.level] || DEFAULT_LEVEL;
+}
+
+function hasOption(selectElement, value) {
+  return Array.from(selectElement.options).some((option) => option.value === value);
 }
 
 async function getActiveTab() {
