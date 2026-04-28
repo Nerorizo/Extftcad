@@ -7,9 +7,9 @@ const REQUEST_TIMEOUT_MS = 15000;
 const MAX_TEXT_LENGTH = 6000;
 
 const LEVEL_LABELS = {
-    fifth_grader: 'объяснить как пятикласснику',
-    basic: 'упростить до базового уровня',
-    plain_language: 'сохранить суть и убрать терминологию',
+    quick: 'коротко и по делу',
+    clear: 'проще и понятнее',
+    notes: 'для конспекта',
 };
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -55,7 +55,7 @@ function normalizeRequest(payload) {
     }
 
     if (!LEVEL_LABELS[level]) {
-        throw new Error('Неизвестный уровень упрощения');
+        throw new Error('Неизвестный режим адаптации');
     }
 
     if (mode !== 'selection' && mode !== 'page') {
@@ -86,11 +86,14 @@ async function fetchAdaptedText(request) {
             signal: controller.signal,
         });
 
+        const data = await response.json().catch(() => null);
+
         if (!response.ok) {
-            throw new Error(`Backend вернул ошибку ${response.status}`);
+            throw new Error(
+                data?.error || `Backend вернул ошибку ${response.status}`,
+            );
         }
 
-        const data = await response.json();
         const adaptedText = String(data?.adaptedText || '').trim();
 
         if (!adaptedText) {
@@ -115,9 +118,9 @@ async function fetchAdaptedText(request) {
 
 function mockAdaptText(request) {
     const prefixByLevel = {
-        fifth_grader: 'Проще: ',
-        basic: 'Кратко и понятно: ',
-        plain_language: 'Без сложных терминов: ',
+        quick: 'Коротко: ',
+        clear: 'Понятно: ',
+        notes: 'Для конспекта: ',
     };
 
     const adaptedText = `${prefixByLevel[request.level]}${request.text}`
