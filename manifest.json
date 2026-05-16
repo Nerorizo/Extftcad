@@ -29,7 +29,7 @@
   ],
   "web_accessible_resources": [
   {
-    "resources": ["miniwindow/miniwindow.html", "miniwindow/miniwindow.css", "src/icon.png"],
+    "resources": ["miniwindow/miniwindow.html", "miniwindow/miniwindow.css", "shared-ui.css", "src/icon.png", "src/arrow_back.svg"],
     "matches": ["<all_urls>"]
   }
 ]

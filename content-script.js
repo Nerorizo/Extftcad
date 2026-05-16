@@ -79,13 +79,7 @@
       throw new Error('Выделите непустой текст');
     }
 
-    if (!isSimpleTextRange(range)) {
-      throw new Error('Пока поддерживается выделение внутри одного текстового блока');
-    }
-
-    const textNode = range.startContainer;
-
-    if (shouldSkipTextNode(textNode)) {
+    if (!isSafeSelectionRange(range)) {
       throw new Error('Этот фрагмент нельзя безопасно изменить');
     }
 
@@ -95,12 +89,29 @@
       mode: 'selection'
     });
 
-    replaceTextRange(textNode, range.startOffset, range.endOffset, adaptedText, level, 'selection');
+    if (isSimpleTextRange(range)) {
+      replaceTextRange(
+        range.startContainer,
+        range.startOffset,
+        range.endOffset,
+        adaptedText,
+        level,
+        'selection'
+      );
+    } else {
+      replaceRange(range, selectedText, adaptedText, level, 'selection');
+    }
+
     selection.removeAllRanges();
 
     return {
       ok: true,
       selectedText,
+      adaptedText,
+      level,
+      mode: 'selection',
+      sourceUrl: window.location.href,
+      pageTitle: document.title,
       changedCount: 1
     };
   }
@@ -113,6 +124,7 @@
     }
 
     let changedCount = 0;
+    const adaptedTexts = [];
 
     for (const textNode of textNodes) {
       const originalText = textNode.nodeValue;
@@ -137,11 +149,17 @@
         level,
         'page'
       );
+      adaptedTexts.push(adaptedText);
       changedCount += 1;
     }
 
     return {
       ok: true,
+      adaptedText: adaptedTexts.join('\n\n'),
+      level,
+      mode: 'page',
+      sourceUrl: window.location.href,
+      pageTitle: document.title,
       changedCount
     };
   }
@@ -150,12 +168,20 @@
     let restoredCount = 0;
 
     for (const replacement of replacements.values()) {
-      if (!replacement.node?.isConnected) {
+      if (replacement.type === 'range') {
+        if (!replacement.container?.isConnected) {
+          continue;
+        }
+
+        replacement.container.replaceWith(replacement.originalFragment.cloneNode(true));
+        restoredCount += 1;
         continue;
       }
 
-      replacement.node.nodeValue = replacement.originalText;
-      restoredCount += 1;
+      if (replacement.node?.isConnected) {
+        replacement.node.nodeValue = replacement.originalText;
+        restoredCount += 1;
+      }
     }
 
     replacements.clear();
@@ -171,6 +197,26 @@
       && range.startContainer.nodeType === Node.TEXT_NODE;
   }
 
+  function isSafeSelectionRange(range) {
+    const commonAncestor = getElementFromNode(range.commonAncestorContainer);
+
+    if (!commonAncestor || isUnsafeElement(commonAncestor)) {
+      return false;
+    }
+
+    if (isSimpleTextRange(range)) {
+      return !shouldSkipTextNode(range.startContainer);
+    }
+
+    const selectedTextNodes = getTextNodesInRange(range);
+
+    if (selectedTextNodes.length === 0) {
+      return false;
+    }
+
+    return selectedTextNodes.every((textNode) => !shouldSkipTextNode(textNode));
+  }
+
   function replaceTextRange(textNode, startOffset, endOffset, adaptedText, level, mode) {
     const originalText = textNode.nodeValue;
     const updatedText = [
@@ -182,6 +228,30 @@
     replaceTextNode(textNode, originalText, updatedText, level, mode);
   }
 
+  function replaceRange(range, originalText, adaptedText, level, mode) {
+    const originalFragment = range.cloneContents();
+    const container = document.createElement('span');
+    const id = createReplacementId();
+
+    container.dataset.extftcadReplacementId = id;
+    container.textContent = adaptedText;
+
+    range.deleteContents();
+    range.insertNode(container);
+
+    replacements.set(id, {
+      id,
+      type: 'range',
+      container,
+      originalText,
+      originalFragment,
+      adaptedText,
+      level,
+      mode,
+      timestamp: Date.now()
+    });
+  }
+
   function replaceTextNode(textNode, originalText, adaptedText, level, mode) {
     const existingId = replacementIdsByNode.get(textNode);
     const existingReplacement = existingId ? replacements.get(existingId) : null;
@@ -190,6 +260,7 @@
 
     replacements.set(id, {
       id,
+      type: 'text',
       node: textNode,
       originalText: firstOriginalText,
       adaptedText,
@@ -300,7 +371,70 @@
       return true;
     }
 
-    return Boolean(parent.closest(Array.from(SKIPPED_TAGS).join(',')));
+    return isUnsafeElement(parent);
+  }
+
+  function isUnsafeElement(element) {
+    if (!element) {
+      return true;
+    }
+
+    if (element.isContentEditable) {
+      return true;
+    }
+
+    return Boolean(element.closest(Array.from(SKIPPED_TAGS).join(',')));
+  }
+
+  function getElementFromNode(node) {
+    if (!node) {
+      return null;
+    }
+
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      return node;
+    }
+
+    return node.parentElement || null;
+  }
+
+  function getTextNodesInRange(range) {
+    const root = range.commonAncestorContainer;
+    const walkerRoot = root.nodeType === Node.TEXT_NODE
+      ? root.parentNode
+      : root;
+
+    if (!walkerRoot) {
+      return [];
+    }
+
+    const walker = document.createTreeWalker(
+      walkerRoot,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode(node) {
+          if (!range.intersectsNode(node)) {
+            return NodeFilter.FILTER_REJECT;
+          }
+
+          if (!node.nodeValue.trim()) {
+            return NodeFilter.FILTER_REJECT;
+          }
+
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      }
+    );
+
+    const nodes = [];
+    let node = walker.nextNode();
+
+    while (node) {
+      nodes.push(node);
+      node = walker.nextNode();
+    }
+
+    return nodes;
   }
 
   function isVisibleTextNode(node) {

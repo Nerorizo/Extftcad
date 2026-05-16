@@ -4,31 +4,51 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>EXTFTCAD</title>
+	<link rel="stylesheet" href="shared-ui.css">
 	<link rel="stylesheet" href="popup.css">
 </head>
 <body>
 	<main class="popup" aria-labelledby="popup-title">
-		<header class="popup__header">
-			<p class="popup__eyebrow">EXTFTCAD</p>
-			<h1 id="popup-title">Адаптация текста</h1>
-		</header>
+		<section id="main-view" class="popup-view">
+			<header class="popup__header">
+				<h1 id="popup-title">Текстовая трансформация</h1>
+			</header>
 
-		<label class="field" for="level">
-			<span>Режим адаптации</span>
-			<select id="level" name="level">
-				<option value="clear">Проще и понятнее</option>
-				<option value="quick">Коротко и по делу</option>
-				<option value="notes">Для конспекта</option>
-			</select>
-		</label>
+			<p id="status" class="status" role="status" aria-live="polite">Готово к работе</p>
 
-		<section class="actions" aria-label="Действия с текстом">
-			<button id="adapt-selection" type="button">Упростить выделение</button>
-			<button id="adapt-page" type="button">Упростить всю страницу</button>
-			<button id="restore-original" class="button-secondary" type="button">Вернуть оригинал</button>
+			<label class="field" for="level">
+				<span style="font-weight: 500;">Режим адаптации</span>
+				<select id="level" name="level">
+					<option value="clear">Проще и понятнее</option>
+					<option value="quick">Коротко и по делу</option>
+					<option value="notes">Для конспекта</option>
+				</select>
+			</label>
+
+			<section class="actions" aria-label="Действия с текстом">
+				<button id="adapt-selection" type="button">Упростить выделение</button>
+				<button id="adapt-page" type="button">Упростить всю страницу</button>
+				<div class="buttons-actions">
+					<button id="save" type="button">Сохранить</button>
+					<button id="restore-original" type="button">Отмена</button>
+				</div>
+			</section>
 		</section>
 
-		<p id="status" class="status" role="status" aria-live="polite">Готово к работе</p>
+		<section id="result-view" class="popup-view" hidden>
+			<header class="popup__header">
+				<button id="back-to-main" type="button"><img src="src/arrow_back.svg" alt=""></button>
+				<h1>Упрощенный текст</h1>
+			</header>
+
+			<p id="result-status" class="status" role="status" aria-live="polite" hidden></p>
+			<div id="result-text" class="result-text"></div>
+
+			<section class="actions" aria-label="Действия с сохраненным текстом">
+				<button id="copy-result" type="button">Скопировать</button>
+				<button id="export-pdf" type="button">Импорт в PDF</button>
+			</section>
+		</section>
 	</main>
 
 	<script src="popup.js"></script>

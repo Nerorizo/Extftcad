@@ -1,19 +1,42 @@
-<!DOCTYPE html>
-<html>
-  <div class="header">
-      <span>Упрощение текста</span>
-  </div>
-  <div class="content">
-      <div id="source-text-display" style="color: #666; font-size: 12px;"></div>
-      <textarea id="source-area" placeholder="Тут будет изначальный текст"" style="width: 280px; resize: vertical;"></textarea>
-      <textarea id="result-area" placeholder="Тут будет адаптированный текст..." style="width: 280px; resize: vertical;""></textarea>
-  </div>
-  <div class="footer">
-			<select id="level" name="level">
-				<option value="clear">Проще и понятнее</option>
-				<option value="quick">Коротко и по делу</option>
-				<option value="notes">Для конспекта</option>
-			</select>
-      <button id="submit-button">Перевести</button>
-  </div>
-</html>
+<main class="mini-popup" aria-labelledby="mini-popup-title">
+  <section id="main-view" class="popup-view">
+    <header class="popup__header">
+      <h1 id="mini-popup-title">Текстовая трансформация</h1>
+    </header>
+
+    <p id="status" class="status" role="status" aria-live="polite">Готово к работе</p>
+
+    <div class="source-preview" aria-label="Выделенный текст">
+      <span class="source-preview__label">Выделение</span>
+      <p id="source-text-display">Выделите текст на странице</p>
+    </div>
+
+    <label class="field" for="level">
+      <span>Режим адаптации</span>
+      <select id="level" name="level">
+        <option value="clear">Проще и понятнее</option>
+        <option value="quick">Коротко и по делу</option>
+        <option value="notes">Для конспекта</option>
+      </select>
+    </label>
+
+    <section class="actions" aria-label="Действия с текстом">
+      <button id="adapt-selection" type="button">Упростить выделение</button>
+    </section>
+  </section>
+
+  <section id="result-view" class="popup-view" hidden>
+    <header class="popup__header">
+		<button id="back-to-main" type="button"><img id="back-to-main-icon" alt=""></button>
+      	<h1>Упрощенный текст</h1>
+    </header>
+
+    <p id="result-status" class="status" role="status" aria-live="polite">Готово</p>
+    <div id="result-text" class="result-text"></div>
+
+    <section class="actions" aria-label="Действия с сохраненным текстом">
+      <button id="copy-result" type="button">Скопировать</button>
+      <button id="export-pdf" type="button">Импорт в PDF</button>
+    </section>
+  </section>
+</main>

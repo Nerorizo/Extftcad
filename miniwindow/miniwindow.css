@@ -1,28 +1,33 @@
 #mini-window {
-    position: absolute;
-    display: none;
-    width: 320px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    padding: 15px;
-    border: 1px solid #ddd;
-    box-sizing: border-box;
-    resize: vertical;
+  position: absolute;
+  z-index: 2147483647;
+  display: none;
+  width: 340px;
+  color: #1d1d1f;
+  background: #fff;
+  border: 1px solid #e4e4ea;
+  border-radius: 18px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
+  font-family: Inter, Arial, sans-serif;
+  font-size: 14px;
 }
 
 #trigger-btn {
-    position: absolute;
-    display: none;
-    width: 50px;
-    height: 50px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    z-index: 2147483647;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  position: absolute;
+  z-index: 2147483647;
+  display: none;
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 16px;
+  background-color: white;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  cursor: pointer;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.mini-popup {
+  padding: 16px;
 }
