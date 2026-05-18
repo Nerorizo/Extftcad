@@ -7,9 +7,9 @@ const REQUEST_TIMEOUT_MS = 15000;
 const MAX_TEXT_LENGTH = 6000;
 
 const LEVEL_LABELS = {
-    quick: 'коротко и по делу',
     clear: 'проще и понятнее',
-    notes: 'для конспекта',
+    notes: 'конспект',
+    plain: 'анти-канцелярит',
 };
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -118,9 +118,9 @@ async function fetchAdaptedText(request) {
 
 function mockAdaptText(request) {
     const prefixByLevel = {
-        quick: 'Коротко: ',
         clear: 'Понятно: ',
-        notes: 'Для конспекта: ',
+        notes: 'Конспект: ',
+        plain: 'Без канцелярита: ',
     };
 
     const adaptedText = `${prefixByLevel[request.level]}${request.text}`

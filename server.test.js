@@ -43,6 +43,33 @@ test('POST /api/text/adapt returns adapted text from service', async () => {
     });
 });
 
+test('POST /api/text/adapt accepts anti-bureaucracy mode', async () => {
+    const app = createApp({
+        adaptText: async (request) => `Без канцелярита: ${request.level}`,
+    });
+    const handler = findRouteHandler(app, '/api/text/adapt', 'post');
+    const response = createResponseRecorder();
+
+    await handler(
+        {
+            body: {
+                text: 'В целях осуществления проверки производится сбор документов.',
+                level: 'plain',
+                mode: 'selection',
+                requestId: 'req-plain',
+            },
+        },
+        response,
+    );
+
+    assert.equal(response.statusCode, 200);
+    assert.deepEqual(response.body, {
+        adaptedText: 'Без канцелярита: plain',
+        requestId: 'req-plain',
+        warnings: [],
+    });
+});
+
 test('POST /api/text/adapt returns validation error before service call', async () => {
     let serviceCalled = false;
     const app = createApp({

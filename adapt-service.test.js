@@ -71,7 +71,7 @@ test('validateAdaptRequest rejects invalid payloads', () => {
 test('buildAdaptMessages includes system prompt and optional metadata', () => {
     const messages = buildAdaptMessages({
         text: 'Плотность вещества показывает массу в единице объема.',
-        level: 'quick',
+        level: 'plain',
         mode: 'page',
         sourceUrl: 'https://example.com/doc',
         pageTitle: 'Физика',
@@ -81,9 +81,21 @@ test('buildAdaptMessages includes system prompt and optional metadata', () => {
     assert.equal(messages[0].content, SYSTEM_PROMPT);
     assert.equal(messages[1].role, 'user');
     assert.match(messages[1].content, /Режим адаптации:/);
-    assert.match(messages[1].content, /быстро понять за 1-2 минуты|ключевые факты/i);
+    assert.match(messages[1].content, /Анти-канцелярит|канцелярит|профессиональным/i);
     assert.match(messages[1].content, /Источник: https:\/\/example.com\/doc/);
     assert.match(messages[1].content, /Название страницы: Физика/);
+});
+
+test('buildAdaptMessages includes anti-bureaucracy rewrite instructions', () => {
+    const messages = buildAdaptMessages({
+        text: 'В целях осуществления проверки производится сбор документов.',
+        level: 'plain',
+        mode: 'selection',
+    });
+
+    assert.match(messages[1].content, /Главная задача режима — именно переписать текст/);
+    assert.match(messages[1].content, /осуществить проверку/);
+    assert.match(messages[1].content, /прямые и понятные выражения/);
 });
 
 test('extractAdaptedText returns string content and array content', () => {
@@ -105,6 +117,28 @@ test('extractAdaptedText returns string content and array content', () => {
             ],
         }),
         'Упрощенный текст',
+    );
+});
+
+test('extractAdaptedText strips markdown emphasis from provider output', () => {
+    assert.equal(
+        extractAdaptedText({
+            choices: [
+                {
+                    message: {
+                        content: '**Конспект обзора моделей GPT-OSS-120b и GPT-OSS-20b**',
+                    },
+                },
+            ],
+        }),
+        'Конспект обзора моделей GPT-OSS-120b и GPT-OSS-20b',
+    );
+
+    assert.equal(
+        extractAdaptedText({
+            choices: [{ message: { content: '### Заголовок\nТекст без разметки' } }],
+        }),
+        'Заголовок\nТекст без разметки',
     );
 });
 
